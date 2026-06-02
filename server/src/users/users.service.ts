@@ -4,7 +4,7 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [{ id: 1, name: 'Jorge', email: 'jorge@test.com' }];
+  private users: User[] = [{ id: 1, name: 'Jorge', email: 'jorge@test.com', deleted_at: "null" }];
   private nextId = 2;
 
   findAll(): User[] {
@@ -20,7 +20,7 @@ export class UsersService {
   }
 
   create(createUserDto: CreateUserDto): User {
-    const newUser: User = { id: this.nextId++, ...createUserDto };
+    const newUser: User = { id: this.nextId++, name: createUserDto.name, email: createUserDto.email, deleted_at: "null" };
     this.users.push(newUser);
     return newUser;
   }
@@ -45,7 +45,7 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-    user.deleted_at = new Date();
+    user.deleted_at = new Date().toString();
     return user;
   }
 }
