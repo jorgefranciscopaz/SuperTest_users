@@ -3,7 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
 describe('App bootstrap (e2e)', () => {
   let app: INestApplication<App>;
@@ -18,11 +18,9 @@ describe('App bootstrap (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
-    tokenSimulado = jwt.sign(
-      { sub: 1, email: 'test@gmail.com' },
-      'secret',
-      { expiresIn: '1h'}
-    )
+    tokenSimulado = jwt.sign({ sub: 1, email: 'test@gmail.com' }, 'secret', {
+      expiresIn: '1h',
+    });
   });
 
   afterAll(async () => {
@@ -31,27 +29,29 @@ describe('App bootstrap (e2e)', () => {
 
   it('should return at leat one user, but with that exact structure', () => {
     return request(app.getHttpServer())
-    .get('/users')
-    .expect(200)
-    .expect((res) => {
-      expect(res.body.length).toBeGreaterThan(0);
-      const user = res.body[0];
-      expect(user).toHaveProperty('id');
-      expect(user).toHaveProperty('name');
-      expect(user).toHaveProperty('email');
-    });
+      .get('/users')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.length).toBeGreaterThan(0);
+        const user = res.body[0];
+        expect(user).toHaveProperty('id');
+        expect(user).toHaveProperty('name');
+        expect(user).toHaveProperty('email');
+      });
   });
 
-  if('GET /users protected with a token', () => {
+  it('GET /users protected with a token', () => {
     return request(app.getHttpServer())
-    .get('/users')
-    .set('Authorization', `Bearer ${tokenSimulado}`)
-    .expect(200)
-  })
+      .get('/users')
+      .set('Authorization', `Bearer ${tokenSimulado}`)
+      .expect(200);
+  });
 
   it('should post a user', () => {
-    return request(app.getHttpServer()).post('/users')
-    .send({name: 'Bryan', email: 'example.com'}).expect(201);
+    return request(app.getHttpServer())
+      .post('/users')
+      .send({ name: 'Bryan', email: 'example.com' })
+      .expect(201);
   });
 
   it('should return code 404 if the user was not found', () => {
@@ -63,8 +63,10 @@ describe('App bootstrap (e2e)', () => {
   });
 
   it('should put a user', () => {
-    return request(app.getHttpServer()).put('/users/1')
-    .send({name: 'Bryan Updated', email: 'example2.com'}).expect(200);
+    return request(app.getHttpServer())
+      .put('/users/1')
+      .send({ name: 'Bryan Updated', email: 'example2.com' })
+      .expect(200);
   });
 
   it('should soft delete a user', () => {
